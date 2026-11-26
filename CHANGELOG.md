@@ -4,6 +4,14 @@ All notable changes are listed here, newest first.
 Versions follow MAJOR.MINOR.PATCH: bump PATCH for fixes, MINOR for new features,
 MAJOR for big changes that break old settings or behaviour.
 
+## 1.1.2 (2026-11-26)
+
+- Fixed: selected text disappeared under the blue selection. The selection is now drawn behind
+  the text, so selected words keep their full colours (light and dark themes, word wrap, tabs)
+- Coloured toolbar icons in the style of classic Windows editors (can be turned off in
+  Customize › Toolbar › Coloured icons)
+- Darker status bar in dark mode so its text is easier to read
+
 ## 1.1.1 (2026-11-25)
 
 - Minimal toolbar (new default): only the essential buttons are shown; everything else is under »

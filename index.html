@@ -145,12 +145,14 @@ font:var(--fs)/var(--lh) var(--mono);user-select:none;font-variant-numeric:tabul
 #mk .mc{background:var(--markc);border-radius:2px;outline:1px solid var(--acc)}
 #curline{position:absolute;left:0;right:0;background:var(--cur);z-index:0;pointer-events:none}
 #ta{position:absolute;inset:0;width:100%;height:100%;z-index:2;color:transparent;background:transparent;caret-color:var(--edink);resize:none;outline:none;overflow:hidden}
-#ta::selection{background:var(--sel);color:transparent}
+#ta::selection{background:transparent;color:transparent}
+#selL{position:absolute;inset:0;z-index:0;pointer-events:none}#selL i{position:absolute;background:var(--sel);border-radius:2px}
+#ta.nosl::selection{background:color-mix(in srgb,var(--sel) 55%,transparent)}
 #hl div,#mk div{min-height:calc(var(--lh)*1em)}
 .k{color:var(--kw);font-weight:600}.s{color:var(--str)}.c{color:var(--com);font-style:italic}.n{color:var(--num)}
 .t{color:var(--tag)}.a{color:var(--attr)}.f{color:var(--fn)}.h{color:var(--hd);font-weight:600}.b{font-weight:600}
 .ws{color:light-dark(#b9bcc3,#555960);font-style:normal;position:relative}.sp::before{content:'·';position:absolute;left:0}.tb::before{content:'→';position:absolute;left:0}.pl::before{content:'¶';position:absolute}
-.status{display:flex;flex-wrap:wrap;align-items:center;background:var(--acc);color:#fff;font-size:12px;min-height:26px}
+.status{display:flex;flex-wrap:wrap;align-items:center;background:light-dark(var(--acc),color-mix(in srgb,var(--acc) 55%,#0b1220));color:#fff;font-size:12px;min-height:26px}
 .status>*{padding:4px 10px;border:0;background:none;color:inherit;white-space:nowrap;font-variant-numeric:tabular-nums}
 .status button:hover,.status select:hover{background:rgba(255,255,255,.18)}
 .status .grow{flex:1}
@@ -302,6 +304,20 @@ kbd{font:12px "JetBrains Mono",monospace}
 #bta{position:absolute;width:24px;height:var(--blh);opacity:0;padding:0;border:0;margin:0;resize:none;overflow:hidden;white-space:pre;font:inherit;color:transparent;background:transparent;caret-color:transparent;z-index:0;outline:none}
 #bta.comp{opacity:1;color:var(--edink);background:var(--edbg);width:auto;min-width:120px;z-index:5;box-shadow:0 0 0 1px var(--acc)}
 .pbar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}.pbar i{display:block;height:100%;width:0;background:var(--acc);transition:width .1s}
+
+/* coloured toolbar icons */
+:root{--icB:light-dark(#1f6fd6,#5aa2ff);--icG:light-dark(#1f9a4a,#4cc777);--icY:light-dark(#d79a00,#f2c14b);--icR:light-dark(#d23b2f,#ff6b5e);--icP:light-dark(#7a4fd0,#ad8cff);--icO:light-dark(#e07000,#ffa04a);--icN:light-dark(#5b6675,#a5adba);--icK:light-dark(#a8662a,#d9a06a)}
+.toolbar svg{color:var(--ic,currentColor)}
+.toolbar.mono svg{color:currentColor!important;fill:none!important}
+.toolbar .fl svg{fill:color-mix(in srgb,var(--ic) 20%,transparent)}
+.toolbar [data-i=new],.toolbar [data-i=save],.toolbar [data-i=saveall],.toolbar [data-i=copy],.toolbar [data-i=undo],.toolbar [data-i=redo],.toolbar [data-i=find],.toolbar [data-i=filter],.toolbar [data-i=zin],.toolbar [data-i=zout],.toolbar [data-i=outline],.toolbar [data-i=preview],.toolbar [data-i=saz],.toolbar [data-i=sza],.toolbar [data-i=s09],.toolbar [data-i=s90],.toolbar [data-i=slen],.toolbar [data-i=slenr],.toolbar [data-i=srev],.toolbar [data-i=hdr],.toolbar [data-i=bm],.toolbar [data-i=bmn],.toolbar [data-i=bmp]{--ic:var(--icB)}
+.toolbar [data-i=reload],.toolbar [data-i=fnext],.toolbar [data-i=fprev],.toolbar [data-i=goto],.toolbar [data-i=wrap],.toolbar [data-i=play],.toolbar [data-i=stats],.toolbar [data-i=grid],.toolbar [data-i=colins],.toolbar [data-i=coll],.toolbar [data-i=colr],.toolbar [data-i=valid]{--ic:var(--icG)}
+.toolbar [data-i=open]{--ic:var(--icY)}
+.toolbar [data-i=cut],.toolbar [data-i=rec],.toolbar [data-i=bmc],.toolbar [data-i=coldel],.toolbar [data-i=sdup],.toolbar [data-i=date]{--ic:var(--icR)}
+.toolbar [data-i=rep],.toolbar [data-i=up],.toolbar [data-i=low],.toolbar [data-i=charmap],.toolbar [data-i=cstat],.toolbar [data-i=sshuf]{--ic:var(--icP)}
+.toolbar [data-i=snip],.toolbar [data-i=cmp]{--ic:var(--icO)}
+.toolbar [data-i=paste]{--ic:var(--icK)}
+.toolbar [data-i=print],.toolbar [data-i=custom],.toolbar [data-i=nums],.toolbar [data-i=ws],.toolbar [data-i=hex],.toolbar [data-i=normal],.toolbar [data-i=stop]{--ic:var(--icN)}
 .toast{position:fixed;right:16px;bottom:40px;background:var(--ink);color:var(--page);padding:8px 14px;border-radius:6px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:70}
 .toast.show{opacity:1}
 :focus-visible{outline:2px solid var(--acc);outline-offset:1px}
@@ -326,6 +342,7 @@ kbd{font:12px "JetBrains Mono",monospace}
     <div class="stack" id="stack">
       <div id="curline"></div>
       <pre id="mk"></pre>
+      <div id="selL" aria-hidden="true"></div>
       <pre id="hl"></pre>
       <textarea id="ta" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" aria-label="Editor"></textarea>
     </div>
@@ -421,8 +438,8 @@ kbd{font:12px "JetBrains Mono",monospace}
    ============================================================ */
 const APP={
   name:'NHEditor',
-  version:'1.1.1',
-  released:'2026-11-25',
+  version:'1.1.2',
+  released:'2026-11-26',
   website:''   /* e.g. 'https://github.com/yourname/textforge' */
 };
 {
@@ -456,7 +473,7 @@ $('sLang').innerHTML=Object.keys(LANGS).map(k=>`<option value="${k}">${LANGS[k].
 /* ---------- state ---------- */
 const S={wrap:false,nums:true,ruler:true,ws:false,fs:14,tab:4,ovr:false,fhist:[],rhist:[],batch:[],fpos:null,
  
- newLang:'text',eol:'CRLF',restore:true,confirm:true,spell:false,showMenu:true,showTb:true,showTabs:true,showStatus:true,curline:true,wrapCol:0,ui:13,font:'JetBrains Mono',fontCustom:'',lh:1.5,lig:false,scheme:'Default',accent:'',colors:{},spaces:false,autoIndent:true,autoClose:true,tbHide:[],tbRows:{std:true,csv:true},tbMode:'minimal',tbMin:{std:false,csv:true},bigMB:10,macros:[],csvHeader:true,csvCol:-1,snippets:[{name:'Signature',text:'Best regards,\n'},{name:'HTML page',text:'<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="utf-8">\n  <title></title>\n</head>\n<body>\n\n</body>\n</html>\n'},{name:'TODO',text:'// TODO: '}],
+ newLang:'text',eol:'CRLF',restore:true,confirm:true,spell:false,showMenu:true,showTb:true,showTabs:true,showStatus:true,curline:true,wrapCol:0,ui:13,font:'JetBrains Mono',fontCustom:'',lh:1.5,lig:false,scheme:'Default',accent:'',colors:{},spaces:false,autoIndent:true,autoClose:true,tbHide:[],tbRows:{std:true,csv:true},tbMode:'minimal',tbColor:true,tbMin:{std:false,csv:true},bigMB:10,macros:[],csvHeader:true,csvCol:-1,snippets:[{name:'Signature',text:'Best regards,\n'},{name:'HTML page',text:'<!DOCTYPE html>\n<html lang="en">\n<head>\n  <meta charset="utf-8">\n  <title></title>\n</head>\n<body>\n\n</body>\n</html>\n'},{name:'TODO',text:'// TODO: '}],
  f:{case:false,word:false,inc:true,all:false,sel:false,wrap:true,count:true,close:false,mode:'none',fuzzy:false,fz:{case:true,dia:true,ws:true},hl:true,bol:false,eol:false}};
 const DEF=JSON.parse(JSON.stringify(S));
 let docs=[],cur=null,uid=1;
@@ -583,7 +600,7 @@ function fStatus(m,bad){const e=$('fcnt');e.textContent=m;e.classList.toggle('ba
 let rq=0,lineCount=1;
 function render(){rq=0;if(cur&&cur.big){bigRender();return}const t=ta.value;if(!cur.flt)cur.text=t;const OL=i=>cur.flt?cur.flt.map[i]:i;
   const lines=highlight(t,cur.lang);lineCount=lines.length;
-  hl.innerHTML=lines.map(l=>`<div>${l||' '}</div>`).join('');
+  hl.innerHTML=lines.map(l=>`<div>${l||' '}</div>`).join('');{const st=new Int32Array(lines.length);let k=0,q=0;for(let i=0;i<lines.length;i++){st[i]=q;q=t.indexOf('\n',q)+1;if(q===0&&i<lines.length-1)break}LS=st}
   marks(t);
   stack.classList.toggle('wrap',S.wrap);ta.setAttribute('wrap',S.wrap?'soft':'off');
   if(S.wrap){const ch=hl.children;let g='';for(let i=0;i<ch.length;i++)g+=`<div${cur.bm.has(OL(i))?' class="bm"':''} style="height:${ch[i].offsetHeight}px">${OL(i)+1}</div>`;gut.innerHTML=g}
@@ -595,7 +612,7 @@ function render(){rq=0;if(cur&&cur.big){bigRender();return}const t=ta.value;if(!
 }
 const sched=()=>{if(!rq)rq=requestAnimationFrame(render)};
 let lastLine=-1;
-function caret(){if(!cur)return;if(cur.big){bStatus();return}
+function caret(){if(!cur)return;if(cur.big){bStatus();return}selReq();
   const t=ta.value,p=ta.selectionStart,before=t.slice(0,p),ln=before.split('\n').length,col=p-before.lastIndexOf('\n');
   $('sPos').textContent=`Ln ${cur.flt?(cur.flt.map[ln-1]??0)+1:ln}, Col ${col}`;
   const n=Math.abs(ta.selectionEnd-p);$('sSel').textContent=n?`${n.toLocaleString()} selected`:'';
@@ -609,7 +626,19 @@ function ruler(){
   $('rulerIn').innerHTML=h+'<span class="caret"></span>';$('rulerIn').style.width=12+510*cw+'px';
 }
 function sync(){$('rulerIn').style.left=(S.nums?gut.offsetWidth:0)-sc.scrollLeft+'px'}
-sc.addEventListener('scroll',sync);
+sc.addEventListener('scroll',()=>{sync();selReq()});
+let LS=new Int32Array([0]),selRaf=0;const selReq=()=>{if(!selRaf)selRaf=requestAnimationFrame(()=>{selRaf=0;selDraw()})};
+function lineOfPos(p){let lo=0,hi=LS.length-1;while(lo<hi){const m=(lo+hi+1)>>1;if(LS[m]<=p)lo=m;else hi=m-1}return lo}
+function nodeAt(div,col){const w=document.createTreeWalker(div,NodeFilter.SHOW_TEXT);let n,left=col,last=null;while((n=w.nextNode())){last=n;if(left<=n.length)return[n,left];left-=n.length}return last?[last,last.length]:[div,0]}
+function selDraw(){const L=$('selL');if(!cur||cur.big||cur.csv){L.innerHTML='';return}const s=ta.selectionStart,e=ta.selectionEnd;if(s===e||!hl.children.length){L.innerHTML='';return}
+  const ch=hl.children,t=ta.value,l0=lineOfPos(s),l1=lineOfPos(Math.max(s,e-0)),top=sc.scrollTop-40,bot=sc.scrollTop+sc.clientHeight+40,lh=S.fs*S.lh,sr=stack.getBoundingClientRect();
+  let lo=l0,hi=l1;while(lo<hi){const m=(lo+hi)>>1;const d=ch[m];if(d&&d.offsetTop+d.offsetHeight<top)lo=m+1;else hi=m}const a=lo;let h='';const r=document.createRange();
+  for(let i=a;i<=l1&&i<ch.length;i++){const d=ch[i];if(d.offsetTop>bot)break;const len=(i+1<LS.length?LS[i+1]-1:t.length)-LS[i],c0=i===l0?s-LS[i]:0,c1=i===l1?e-LS[i]:len;
+    let rects=[];if(c1>c0){const[n0,o0]=nodeAt(d,c0),[n1,o1]=nodeAt(d,Math.min(c1,len));try{r.setStart(n0,o0);r.setEnd(n1,o1);rects=[...r.getClientRects()].filter(x=>x.width>0)}catch(err){}}
+    const dr=d.getBoundingClientRect(),nr=Math.max(1,Math.round(dr.height/lh)),rows=[];for(const x of rects){const k=Math.max(0,Math.min(nr-1,Math.floor((x.top-dr.top+1)/lh))),cy=dr.top+k*lh+lh/2;let row=rows.find(o=>o.k===k);if(row){row.l=Math.min(row.l,x.left);row.r=Math.max(row.r,x.right)}else rows.push({k,cy,l:x.left,r:x.right})}rows.sort((p,q)=>p.k-q.k);
+    if(i<l1){if(rows.length){const lr=rows[rows.length-1];lr.r+=cw*.6}else{const[n0,o0]=nodeAt(d,0);try{r.setStart(n0,o0);r.setEnd(n0,o0)}catch(err){}const x=r.getBoundingClientRect();rows.push({k:0,cy:dr.top+lh/2,l:x.left||dr.left+12,r:(x.left||dr.left+12)+cw*.6})}}
+    for(const o of rows)h+=`<i style="left:${o.l-sr.left}px;top:${o.cy-lh/2-sr.top}px;width:${o.r-o.l}px;height:${lh}px"></i>`}
+  L.innerHTML=h}
 function applyView(){document.documentElement.style.setProperty('--fs',S.fs+'px');gut.classList.toggle('hide',!S.nums);$('ruler').classList.toggle('hide',!S.ruler);
   stack.style.tabSize=S.tab;document.documentElement.style.setProperty('--tabs',S.tab);stack.querySelectorAll('pre,textarea').forEach(e=>{e.style.tabSize=S.tab;e.style.MozTabSize=S.tab});
   $('sTab').textContent='Tab '+S.tab;$('sOvr').textContent=S.ovr?'OVR':'INS';$('bWrap')&&$('bWrap').classList.toggle('on',S.wrap);
@@ -849,7 +878,7 @@ function applyCustom(){const R=document.documentElement,fn=fontName();loadFont(f
   if(S.accent){R.style.setProperty('--acc',S.accent);R.style.setProperty('--accbg',`color-mix(in srgb,${S.accent} 18%,var(--page))`)}else{R.style.removeProperty('--acc');R.style.removeProperty('--accbg')}
   $('toolbar').style.display=S.showTb?'':'none';$('tabs').style.display=S.showTabs?'':'none';$('status').style.display=S.showStatus?'':'none';$('menubar').style.display=S.showMenu?'':'none';
   cl.style.display=S.curline?'':'none';ta.spellcheck=!!S.spell;
-  document.querySelectorAll('#toolbar .tbrow').forEach(row=>{row.style.display=S.tbRows[row.dataset.row]===false?'none':''});if(typeof tbFit==='function')tbFit();
+  document.querySelectorAll('#toolbar .tbrow').forEach(row=>{row.style.display=S.tbRows[row.dataset.row]===false?'none':''});$('toolbar').classList.toggle('mono',S.tbColor===false);if(typeof tbFit==='function')tbFit();
   const key=fn+S.fs+S.lh+S.lig;if(key!==fontKey){fontKey=key;const go=()=>{measure();if(cur)render();sync()};go();document.fonts&&document.fonts.load(`${S.fs}px "${fn}"`).then(go,()=>{})}}
 function hexOf(v){const p=document.createElement('span');p.style.color=`var(--${v})`;document.body.appendChild(p);const c=getComputedStyle(p).color;p.remove();const m=c.match(/[\d.]+/g)||[0,0,0];return '#'+m.slice(0,3).map(x=>(+x|0).toString(16).padStart(2,'0')).join('')}
 const PAGES=[
@@ -886,7 +915,7 @@ function czDraw(){
     if(t==='preview')return `<div class="czprev"><div><span class="k">function</span> <span class="f">greet</span>(name) {</div><div>  <span class="k">return</span> <span class="s">"Hello, "</span> + name; <span class="c">// 0O 1lI =&gt; !== ===</span></div><div>}</div></div>`;
     if(t==='accent')return `<label class="czr"><span>Accent (status bar, buttons)</span><span class="czc"><input type="color" data-acc="1" value="${S.accent||hexOf('acc')}"><button data-accreset="1">Default</button></span></label>`;
     if(t==='colors')return `<div class="czgrid">${COLS.map(([c,n])=>`<label class="czr col"><input type="color" data-col="${c}" value="${S.colors[c]||hexOf(c)}"><span>${n}</span>${S.colors[c]?'<b title="Changed">•</b>':''}</label>`).join('')}</div><div class="czr"><span class="note">Changing a color here overrides the scheme.</span><button data-colreset="1">Reset colors to scheme</button></div>`;
-    if(t==='tb')return `<label class="czr"><span>Toolbar style</span><select data-k="tbMode"><option value="minimal"${S.tbMode!=='full'?' selected':''}>Minimal: essentials, rest under »</option><option value="full"${S.tbMode==='full'?' selected':''}>Full: every button</option></select></label><p class="note">Choose which buttons the toolbars show. Whole toolbars can be hidden from View › Standard toolbar / CSV and Sort toolbar.</p><div class="czgrid">${TB.map(b=>`<label class="czr chk"><input type="checkbox" data-tb="${b[0]}"${S.tbHide.includes(b[0])?'':' checked'}><svg viewBox="0 0 19 19">${I[(b[3]&&b[3].icon)||b[0]]}</svg> ${esc(b[1].replace(/ \(.*\)/,''))}</label>`).join('')}</div>`;
+    if(t==='tb')return `<label class="czr"><span>Toolbar style</span><select data-k="tbMode"><option value="minimal"${S.tbMode!=='full'?' selected':''}>Minimal: essentials, rest under »</option><option value="full"${S.tbMode==='full'?' selected':''}>Full: every button</option></select></label><label class="czr chk"><input type="checkbox" data-k="tbColor"${S.tbColor!==false?' checked':''}> Coloured icons</label><p class="note">Choose which buttons the toolbars show. Whole toolbars can be hidden from View › Standard toolbar / CSV and Sort toolbar.</p><div class="czgrid">${TB.map(b=>`<label class="czr chk"><input type="checkbox" data-tb="${b[0]}"${S.tbHide.includes(b[0])?'':' checked'}><svg viewBox="0 0 19 19">${I[(b[3]&&b[3].icon)||b[0]]}</svg> ${esc(b[1].replace(/ \(.*\)/,''))}</label>`).join('')}</div>`;
   });
   $('czPg').innerHTML=`<h3>${PAGES[czPage][0]}</h3>`+rows.join('');
 }
@@ -1493,8 +1522,10 @@ const ROWS=[
    ['colins','Insert column',()=>colOp('ins')],['coldel','Delete column',()=>colOp('del')],['coll','Move column left',()=>colOp('left')],['colr','Move column right',()=>colOp('right')],['hdr','First row is a header',()=>{S.csvHeader=!S.csvHeader;persist();if(cur.csv)drawGrid();tbState()},{on:()=>S.csvHeader}],['cstat','Column statistics',colStats],['valid','Check column counts',csvValidate]]]];
 const TB=ROWS.flatMap(r=>r[1]).filter(x=>Array.isArray(x));
 const ROWNAME={std:'Standard tools',csv:'CSV & Sort tools'};
+const FILLI=new Set(['new','open','save','saveall','print','copy','paste','filter','bm','bmn','bmp','bmc','date','grid','cmp','hdr','valid','colins','coldel','find','fnext','fprev','zin','zout']);
 const MINSET=new Set(['new','open','save','undo','redo','find','rep','filter','wrap','custom','normal','csvComma','csvTab','saz','sza','s09','cstat']);
-$('toolbar').innerHTML=ROWS.map(([id,items])=>`<div class="tbrow" data-row="${id}"><button class="tbstrip" data-exp="${id}" title="Show ${ROWNAME[id]}"><svg viewBox="0 0 19 19"><path d="M6 7.5l3.5 3.5L13 7.5"/></svg><span>${ROWNAME[id]}</span></button><div class="tbitems">`+items.map(b=>!b?'<span class="sep"></span>':b.label?`<span class="lbl">${b.label}</span>`:`<button data-t="${TB.indexOf(b)}" title="${b[1]}" aria-label="${b[1]}"${b[3]&&b[3].text?' class="txt"':''}><svg viewBox="0 0 19 19">${I[(b[3]&&b[3].icon)||b[0]]}</svg>${b[3]&&b[3].text?`<span>${b[3].text}</span>`:''}</button>`).join('')+`</div><div class="tbend"><button class="tbmore" data-more="${id}" title="More tools" aria-label="More tools">»</button><button class="tbmin" data-min="${id}" title="Minimize ${ROWNAME[id]}" aria-label="Minimize ${ROWNAME[id]}"><svg viewBox="0 0 19 19"><path d="M6 11.5L9.5 8l3.5 3.5"/></svg></button></div></div>`).join('');
+setTimeout(()=>document.querySelectorAll('#toolbar [data-i]').forEach(b=>{if(FILLI.has(b.dataset.i))b.classList.add('fl')}));
+$('toolbar').innerHTML=ROWS.map(([id,items])=>`<div class="tbrow" data-row="${id}"><button class="tbstrip" data-exp="${id}" title="Show ${ROWNAME[id]}"><svg viewBox="0 0 19 19"><path d="M6 7.5l3.5 3.5L13 7.5"/></svg><span>${ROWNAME[id]}</span></button><div class="tbitems">`+items.map(b=>!b?'<span class="sep"></span>':b.label?`<span class="lbl">${b.label}</span>`:`<button data-t="${TB.indexOf(b)}" data-i="${(b[3]&&b[3].icon)||b[0]}" title="${b[1]}" aria-label="${b[1]}"${b[3]&&b[3].text?' class="txt"':''}><svg viewBox="0 0 19 19">${I[(b[3]&&b[3].icon)||b[0]]}</svg>${b[3]&&b[3].text?`<span>${b[3].text}</span>`:''}</button>`).join('')+`</div><div class="tbend"><button class="tbmore" data-more="${id}" title="More tools" aria-label="More tools">»</button><button class="tbmin" data-min="${id}" title="Minimize ${ROWNAME[id]}" aria-label="Minimize ${ROWNAME[id]}"><svg viewBox="0 0 19 19"><path d="M6 11.5L9.5 8l3.5 3.5"/></svg></button></div></div>`).join('');
 function tbFit(){document.querySelectorAll('#toolbar .tbrow').forEach(row=>{const id=row.dataset.row,min=!!S.tbMin[id];row.classList.toggle('min',min);if(min||row.style.display==='none')return;
   const box=row.querySelector('.tbitems'),kids=[...box.children];
   kids.forEach(b=>{if(b.dataset.t){const k=TB[b.dataset.t][0];b.style.display=S.tbHide.includes(k)||(S.tbMode!=='full'&&!MINSET.has(k))?'none':''}else b.style.display=''});
