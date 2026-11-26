@@ -4,6 +4,17 @@ All notable changes are listed here, newest first.
 Versions follow MAJOR.MINOR.PATCH: bump PATCH for fixes, MINOR for new features,
 MAJOR for big changes that break old settings or behaviour.
 
+## 1.1.3 (2026-11-26)
+
+- New status bar in the style of classic Windows editors: light grey with dividers
+  - Message area on the left shows the last action and how long it took, e.g. "(0.002 seconds)"
+  - Language, Ln / Col, encoding, line endings, tab size, INS / OVR, character count
+    ("44 of 752 characters" when text is selected) and current / total lines
+  - Bell button with the list of recent messages
+- Encoding shows "UTF-8 without signature"; click it to save with a signature (BOM).
+  Files that already have a BOM keep it
+- The version number moved to Help › About
+
 ## 1.1.2 (2026-11-26)
 
 - Fixed: selected text disappeared under the blue selection. The selection is now drawn behind

@@ -152,11 +152,14 @@ font:var(--fs)/var(--lh) var(--mono);user-select:none;font-variant-numeric:tabul
 .k{color:var(--kw);font-weight:600}.s{color:var(--str)}.c{color:var(--com);font-style:italic}.n{color:var(--num)}
 .t{color:var(--tag)}.a{color:var(--attr)}.f{color:var(--fn)}.h{color:var(--hd);font-weight:600}.b{font-weight:600}
 .ws{color:light-dark(#b9bcc3,#555960);font-style:normal;position:relative}.sp::before{content:'·';position:absolute;left:0}.tb::before{content:'→';position:absolute;left:0}.pl::before{content:'¶';position:absolute}
-.status{display:flex;flex-wrap:wrap;align-items:center;background:light-dark(var(--acc),color-mix(in srgb,var(--acc) 55%,#0b1220));color:#fff;font-size:12px;min-height:26px}
-.status>*{padding:4px 10px;border:0;background:none;color:inherit;white-space:nowrap;font-variant-numeric:tabular-nums}
-.status button:hover,.status select:hover{background:rgba(255,255,255,.18)}
-.status .grow{flex:1}
-.status select{appearance:none;cursor:pointer;font-size:12px}
+.status{display:flex;flex-wrap:nowrap;align-items:stretch;background:var(--chrome);color:var(--ink);font-size:12px;min-height:24px;border-top:1px solid var(--line);overflow:hidden}
+.status>*{display:flex;align-items:center;padding:3px 8px;border:0;border-left:1px solid var(--line);background:none;color:inherit;white-space:nowrap;font-variant-numeric:tabular-nums;flex:none}
+.status>[hidden]{display:none}
+.status .smsg{flex:1 1 auto;min-width:0;border-left:0;overflow:hidden;text-overflow:ellipsis;display:block;line-height:18px;color:var(--ink)}
+.status button:hover,.status select:hover{background:var(--accbg)}
+.status select{appearance:none;cursor:pointer;font-size:12px;padding-right:8px}
+#sSave{color:var(--mute)}#sSave.bad{color:#fff}
+#sBell{position:relative;padding:3px 9px}#sBellDot{position:absolute;top:4px;right:6px;width:6px;height:6px;border-radius:50%;background:#e53935;display:none}#sBell.new #sBellDot{display:block}
 .status select option{color:#111;background:#fff}
 .drop{position:fixed;inset:0;background:rgba(10,95,216,.12);border:3px dashed var(--acc);display:none;place-items:center;font-size:20px;font-weight:600;color:var(--acc);z-index:50}
 .drop.show{display:grid}
@@ -322,7 +325,7 @@ kbd{font:12px "JetBrains Mono",monospace}
 .toast.show{opacity:1}
 :focus-visible{outline:2px solid var(--acc);outline-offset:1px}
 @media(prefers-reduced-motion:reduce){.toast{transition:none}}
-@media(max-width:600px){.menubar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.menubar>div>button{white-space:nowrap}.status .hm{display:none}.dd{position:fixed;left:8px;right:8px;top:auto;min-width:0}}
+@media(max-width:600px){.status #sPos,.status #sLines{border-left:0}.status .smsg{display:none}.menubar{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.menubar>div>button{white-space:nowrap}.status .hm{display:none}.dd{position:fixed;left:8px;right:8px;top:auto;min-width:0}}
 </style>
 </head>
 <body>
@@ -352,15 +355,18 @@ kbd{font:12px "JetBrains Mono",monospace}
   <aside id="side" class="side" hidden><div class="sideh"><span id="sideT"></span><button id="sideX" aria-label="Close panel">✕</button></div><div id="sideB"></div></aside>
   </div>
   <div class="status" id="status">
-    <span id="sPos">Ln 1, Col 1</span>
-    <span id="sSel" class="hm"></span><span id="sRec"></span><button id="sSave" class="sv" title="Auto-save"></button><span id="sMode"></span>
-    <span class="grow"></span>
-    <span id="sCount" class="hm"></span>
-    <select id="sLang" aria-label="Syntax"></select>
-    <span class="hm">UTF-8</span>
-    <button id="sEol" title="Toggle line endings">CRLF</button>
+    <span id="sMsg" class="smsg">Ready</span>
+    <span id="sRec"></span><span id="sMode"></span><button id="sSave" class="sv" title="Auto-save"></button>
+    <span id="sSel" hidden></span>
+    <select id="sLang" aria-label="Syntax" title="Syntax colouring"></select>
+    <span id="sPos" title="Line and column">Ln 1, Col 1</span>
+    <button id="sEnc" class="hm" title="Encoding: click to switch signature (BOM)">UTF-8 without signature</button>
+    <button id="sEol" title="Line endings: click to switch">CRLF</button>
     <button id="sTab" class="hm" title="Tab size">Tab 4</button>
-    <button id="sOvr" title="Insert / Overwrite (Insert key)">INS</button>
+    <button id="sOvr" class="hm" title="Insert / Overwrite (Insert key)">INS</button>
+    <span id="sCount" class="hm"></span>
+    <span id="sLines"></span>
+    <button id="sBell" title="Messages" aria-label="Messages"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 11V7a4 4 0 018 0v4l1.2 1.5H2.8z"/><path d="M6.5 14a1.6 1.6 0 003 0"/></svg><i id="sBellDot"></i></button>
   </div>
 </div>
 <div class="fd" id="fd" role="dialog" aria-labelledby="fdT">
@@ -438,7 +444,7 @@ kbd{font:12px "JetBrains Mono",monospace}
    ============================================================ */
 const APP={
   name:'NHEditor',
-  version:'1.1.2',
+  version:'1.1.3',
   released:'2026-11-26',
   website:''   /* e.g. 'https://github.com/yourname/textforge' */
 };
@@ -536,14 +542,14 @@ const SKEY='tf-state';let idb=null,lastOk=null;
 function idbOpen(){return Promise.race([new Promise(r=>{try{const q=indexedDB.open('nheditor',1);q.onupgradeneeded=()=>q.result.createObjectStore('kv');q.onsuccess=()=>{idb=q.result;r(idb)};q.onerror=q.onblocked=()=>r(null)}catch(e){r(null)}}),new Promise(r=>setTimeout(()=>r(null),2000))])}
 function idbSet(k,v){return new Promise(r=>{if(!idb)return r(false);try{const tx=idb.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>r(true);tx.onerror=tx.onabort=()=>r(false)}catch(e){r(false)}})}
 function idbGet(k){return new Promise(r=>{if(!idb)return r(null);try{const q=idb.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>r(q.result??null);q.onerror=()=>r(null)}catch(e){r(null)}})}
-function snapshot(){syncCur();return{t:Date.now(),S,act:cur&&cur.id,docs:S.restore?docs.map(d=>({bid:d.big?d.bid:undefined,bsel:d.big?d.bs:undefined,btop:d.big?d.btop:undefined,name:d.name,text:d.big?'':d.text,lang:d.lang,eol:d.eol,dirty:d.dirty,sel:d.sel,id:d.id,bm:[...d.bm],csv:d.csv||''})):[]}}
+function snapshot(){syncCur();return{t:Date.now(),S,act:cur&&cur.id,docs:S.restore?docs.map(d=>({bid:d.big?d.bid:undefined,bsel:d.big?d.bs:undefined,btop:d.big?d.btop:undefined,name:d.name,text:d.big?'':d.text,lang:d.lang,eol:d.eol,bom:!!d.bom,dirty:d.dirty,sel:d.sel,id:d.id,bm:[...d.bm],csv:d.csv||''})):[]}}
 function saveLocal(){try{bigJournal()}catch(e){}try{localStorage.setItem(SKEY,JSON.stringify(snapshot()));return true}catch(e){return false}}
 function showSaved(ok){lastOk=ok;const e=$('sSave');if(!e)return;const tm=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   e.textContent=ok?'✓ Saved':'⚠ Not saved';e.classList.toggle('bad',!ok);e.title=ok?'Your text is saved in this browser (auto-save, '+tm+'). It comes back when you reload.':'This browser is not letting '+APP.name+' save. Click for help.'}
 async function saveNow(){if(!cur)return;const json=JSON.stringify(snapshot());let ok=false;try{localStorage.setItem(SKEY,json);ok=true}catch(e){}
   const ok2=await idbSet(SKEY,json);if(FSA)idbSet('tf-handles',docs.map(d=>d.handle||null));showSaved(ok||ok2)}
 function persist(){const e=$('sSave');if(e&&lastOk!==false){e.textContent='Saving…';e.classList.remove('bad')}clearTimeout(saveT);saveT=setTimeout(saveNow,300)}
-function restore(j){try{if(j&&j.S&&(j.docs&&j.docs.length||j.S.restore===false)){const f=Object.assign({},S.f,(j.S||{}).f||{});f.fz=Object.assign({},S.f.fz,f.fz);Object.assign(S,j.S||{});S.f=f;S.f.sel=false;if(!S.restore){const d=mkDoc('Untitled-1'+'.'+LANGS[S.newLang].ext[0],'');d.eol=S.eol;docs=[d];return d}docs=j.docs.map(d=>Object.assign(mkDoc(d.name,d.text,d.lang),{eol:d.eol,dirty:d.dirty,sel:d.sel||[0,0],oid:d.id,bm:new Set(d.bm||[]),csv:d.csv||'',bigId:d.bid,bs0:d.bsel,btop0:d.btop}));const a=docs.find(d=>d.oid===j.act);return a||docs[0]}}catch(e){}return null}
+function restore(j){try{if(j&&j.S&&(j.docs&&j.docs.length||j.S.restore===false)){const f=Object.assign({},S.f,(j.S||{}).f||{});f.fz=Object.assign({},S.f.fz,f.fz);Object.assign(S,j.S||{});S.f=f;S.f.sel=false;if(!S.restore){const d=mkDoc('Untitled-1'+'.'+LANGS[S.newLang].ext[0],'');d.eol=S.eol;docs=[d];return d}docs=j.docs.map(d=>Object.assign(mkDoc(d.name,d.text,d.lang),{bom:!!d.bom,eol:d.eol,dirty:d.dirty,sel:d.sel||[0,0],oid:d.id,bm:new Set(d.bm||[]),csv:d.csv||'',bigId:d.bid,bs0:d.bsel,btop0:d.btop}));const a=docs.find(d=>d.oid===j.act);return a||docs[0]}}catch(e){}return null}
 
 /* ---------- highlighting ---------- */
 function highlight(text,lang){
@@ -607,7 +613,7 @@ function render(){rq=0;if(cur&&cur.big){bigRender();return}const t=ta.value;if(!
   else gut.innerHTML=Array.from({length:lineCount},(_,i)=>cur.bm.has(OL(i))?`<div class="bm">${OL(i)+1}</div>`:`<div>${OL(i)+1}</div>`).join('');
   if(S.wrap&&S.wrapCol>0){stack.style.flex='none';stack.style.width=(24+S.wrapCol*cw)+'px'}else{stack.style.flex='';stack.style.width=S.wrap?'':hl.offsetWidth+'px'}
   const w=t.trim()?t.trim().split(/\s+/).length:0;
-  $('sCount').textContent=`${lineCount.toLocaleString()} lines · ${t.length.toLocaleString()} chars · ${w.toLocaleString()} words`;
+  $('sCount').dataset.n=t.length;$('sCount').title=`${w.toLocaleString()} words`;
   caret();tabs();if(typeof updateSide==='function'){updateSide();tbState()}
 }
 const sched=()=>{if(!rq)rq=requestAnimationFrame(render)};
@@ -615,7 +621,7 @@ let lastLine=-1;
 function caret(){if(!cur)return;if(cur.big){bStatus();return}selReq();
   const t=ta.value,p=ta.selectionStart,before=t.slice(0,p),ln=before.split('\n').length,col=p-before.lastIndexOf('\n');
   $('sPos').textContent=`Ln ${cur.flt?(cur.flt.map[ln-1]??0)+1:ln}, Col ${col}`;
-  const n=Math.abs(ta.selectionEnd-p);$('sSel').textContent=n?`${n.toLocaleString()} selected`:'';
+  const n=Math.abs(ta.selectionEnd-p),tot=ta.value.length;$('sCount').textContent=n?`${n.toLocaleString()} of ${tot.toLocaleString()} characters`:`${tot.toLocaleString()} characters`;$('sLines').textContent=`${ln.toLocaleString()}/${lineCount.toLocaleString()} lines`;
   const d=hl.children[ln-1];if(d){cl.style.top=d.offsetTop+'px';cl.style.height=d.offsetHeight+'px'}
   if(lastLine!==ln||1){const o=gut.querySelector('.on');if(o)o.classList.remove('on');const g=gut.children[ln-1];if(g)g.classList.add('on');lastLine=ln}
   const rc=$('rulerIn').querySelector('.caret');if(rc)rc.style.left=12+(col-1)*cw+'px';
@@ -648,7 +654,7 @@ function applyView(){document.documentElement.style.setProperty('--fs',S.fs+'px'
 /* ---------- tabs ---------- */
 function tabs(){
   $('tabs').innerHTML=docs.map(d=>`<div class="tab${d===cur?' act':''}" data-id="${d.id}" title="${esc(d.name)}"><span class="nm">${esc(d.name)}</span>${d.dirty?'<span class="dirty">●</span>':''}<button class="x" data-x="${d.id}" aria-label="Close ${esc(d.name)}">✕</button></div>`).join('')+'<button class="plus" id="newTab" title="New (Ctrl+N)" aria-label="New tab">+</button>';
-  if(cur){$('titleFn').textContent='— '+cur.name+(cur.dirty?' *':'');document.title=cur.name+' - '+APP.name;$('sLang').value=cur.lang;$('sEol').textContent=cur.eol}
+  if(cur){$('titleFn').textContent='— '+cur.name+(cur.dirty?' *':'');document.title=cur.name+' - '+APP.name;$('sLang').value=cur.lang;$('sEol').textContent=cur.eol;$('sEnc').textContent=cur.bom?'UTF-8 with signature':'UTF-8 without signature'}
 }
 $('tabs').addEventListener('click',e=>{const x=e.target.closest('[data-x]');if(x){closeDoc(docs.find(d=>d.id==x.dataset.x));return}
   if(e.target.id==='newTab'){newDoc();return}const t=e.target.closest('.tab');if(t)activate(docs.find(d=>d.id==t.dataset.id))});
@@ -821,11 +827,11 @@ function goLine(){const LC=cur.big?cur.big.lines():lineCount;dialog('Go to line'
 let FSA=false;try{FSA=!!window.showOpenFilePicker&&window.top===window}catch(e){}
 async function openDlg(){if(!FSA){$('fileIn').click();return}try{const hs=await showOpenFilePicker({multiple:true});for(const h of hs)openOne(await h.getFile(),h)}catch(e){if(e.name!=='AbortError')$('fileIn').click()}}
 function openFiles(list){[...list].forEach(f=>openOne(f))}
-function openOne(f,h){if(f.size>=S.bigMB*1048576){openBig(f,h);return}const open=docs.find(d=>d.handle&&h&&d.name===f.name);const r=new FileReader();r.onload=()=>{let txt=String(r.result);if(txt.charCodeAt(0)===0xFEFF)txt=txt.slice(1);
-  const d=mkDoc(f.name,txt);d.handle=h||null;const ex=f.name.split('.').pop().toLowerCase();if(ex==='csv')d.csv=',';if(ex==='tsv')d.csv='\t';if(cur&&!cur.dirty&&!cur.text&&/^Untitled/.test(cur.name)){const i=docs.indexOf(cur);docs[i]=d;cur=null}else docs.push(d);activate(d);toast('Opened '+f.name)};r.readAsText(f)}
+function openOne(f,h){if(f.size>=S.bigMB*1048576){openBig(f,h);return}const open=docs.find(d=>d.handle&&h&&d.name===f.name);const r=new FileReader();r.onload=()=>{let txt=String(r.result);let bom=false;if(txt.charCodeAt(0)===0xFEFF){txt=txt.slice(1);bom=true}
+  const d=mkDoc(f.name,txt);d.handle=h||null;d.bom=bom;const ex=f.name.split('.').pop().toLowerCase();if(ex==='csv')d.csv=',';if(ex==='tsv')d.csv='\t';if(cur&&!cur.dirty&&!cur.text&&/^Untitled/.test(cur.name)){const i=docs.indexOf(cur);docs[i]=d;cur=null}else docs.push(d);activate(d);toast('Opened '+f.name)};r.readAsText(f)}
 $('fileIn').onchange=e=>{openFiles(e.target.files);e.target.value=''};
 let dlNS=null;try{window.claude&&window.claude.use&&window.claude.use('downloads').then(n=>{dlNS=n}).catch(()=>{})}catch(e){}
-function outText(){return cur.eol==='CRLF'?ta.value.replace(/\n/g,'\r\n'):ta.value}
+function outText(){return(cur.bom?'\ufeff':'')+(cur.eol==='CRLF'?ta.value.replace(/\n/g,'\r\n'):ta.value)}
 async function writeHandle(h,data){try{if(h.queryPermission&&(await h.queryPermission({mode:'readwrite'}))!=='granted')await h.requestPermission({mode:'readwrite'})}catch(e){}const w=await h.createWritable();await w.write(data);await w.close()}
 async function saveDoc(name,pick){syncCur();const data=cur.big?bBlob():outText();
   if(FSA){try{let h=cur.handle;if(!h||pick){h=await showSaveFilePicker({suggestedName:name||cur.name});cur.handle=h;cur.name=h.name;cur.lang=langFor(h.name)}
@@ -852,7 +858,8 @@ function dialog(title,body,btns,wide){$('modal').querySelector('.box').classList
   setTimeout(()=>{if(!$('modal').contains(document.activeElement))($('mB').querySelector('input,select')||$('mF').querySelector('.pri'))?.focus()},10)}
 $('modal').addEventListener('keydown',e=>{if(e.key==='Escape'){$('modal').classList.remove('show');edFocus()}});
 $('modal').addEventListener('click',e=>{if(e.target.id==='modal')$('modal').classList.remove('show')});
-let tt;function toast(m){const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1600)}
+let tt,toastSeq=0,lastToast='';const MSGS=[];function setMsg(m){const e=$('sMsg');if(e){e.textContent=m;e.title=m}}
+function toast(m){toastSeq++;lastToast=m;setMsg(m);MSGS.unshift([new Date(),m]);if(MSGS.length>40)MSGS.pop();$('sBell').classList.add('new');const t=$('toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),1600)}
 function shortcuts(){const rows=MENUS.flatMap(mItems).filter(i=>i&&i[1]).map(i=>`<tr><td>${esc(i[0])}</td><td><kbd>${esc(i[1])}</kbd></td></tr>`).join('');dialog('Keyboard shortcuts',`<table>${rows}<tr><td>Stop recording / play macro</td><td><kbd>Ctrl+Shift+R / Ctrl+Shift+P</kbd></td></tr><tr><td>Indent / outdent selection</td><td><kbd>Tab / Shift+Tab</kbd></td></tr><tr><td>Close tab</td><td><kbd>Middle-click tab</kbd></td></tr></table>`,[['Close',null,1]])}
 function about(){const site=/^https:\/\//.test(APP.website)?`<p><a href="${esc(APP.website)}" target="_blank" rel="noopener">${esc(APP.website)}</a></p>`:'';dialog('About '+APP.name,`<p style="font-size:18px;margin:0 0 4px"><b>${esc(APP.name)}</b> ${esc(APP.version)}</p><p class="note" style="margin:0 0 12px">Released ${esc(APP.released)}</p><p>A fast, free text and code editor that runs in your browser. Tabs, syntax colouring, powerful Find &amp; Replace, CSV tables, compare, macros and more, all in one file.</p><p>Everything runs on your own computer. Nothing you type is uploaded anywhere. Open tabs are remembered on this device only.</p><p class="note">Open source under the MIT License.</p>${site}`,[['OK',null,1]])}
 
@@ -985,7 +992,7 @@ function drawGrid(){if(!cur.csv)return;const t=cur.text;G={rows:csvParse(t,cur.c
   G.rows.slice(0,CAP).forEach((r,i)=>{h+=`<tr class="${hdr&&i===0?'hdr':''}${r.length!==mode?' bad':''}"><th data-row="${i}">${i+1}</th>`;
     for(let c=0;c<nc;c++){const v=r[c];h+=`<td contenteditable="plaintext-only" spellcheck="false" data-r="${i}" data-c="${c}" class="${v===undefined?'miss':''}${c===sel?' csel':''}${v&&isNum(v)?' num':''}">${v===undefined?'':esc(v)}</td>`}h+='</tr>'});
   h+='</tbody></table>'+(G.rows.length>CAP?`<p class="gnote">Showing the first ${CAP.toLocaleString()} of ${G.rows.length.toLocaleString()} rows. Switch to Normal to see everything.</p>`:'');
-  $('grid').innerHTML=h;$('sCount').textContent=`${G.rows.length.toLocaleString()} rows · ${nc} columns`}
+  $('grid').innerHTML=h;$('sCount').textContent=`${nc} columns`;$('sLines').textContent=`${G.rows.length.toLocaleString()} rows`}
 function gridCommit(full){const nt=csvStr(G.rows,G.dl,G.trail);if(full){setTextAny(nt);drawGrid()}else{pushUndo(false);cur.text=nt;ta.value=nt;dirty()}}
 function setTextAny(nt){pushUndo(true);cur.text=nt;ta.value=nt;cur.last=0;dirty()}
 $('grid').addEventListener('input',e=>{const td=e.target.closest('td');if(!td||!G)return;const r=+td.dataset.r,c=+td.dataset.c,row=G.rows[r];while(row.length<=c)row.push('');row[c]=td.textContent;td.classList.remove('miss');gridCommit(false)});
@@ -1258,7 +1265,7 @@ function bigRender(){const d=cur;if(!d||!d.big)return;const B=d.big,g=bGeom();d.
   car.style.animation='none';void car.offsetWidth;car.style.animation='';bStatus()}
 function bStatus(){const d=cur;if(!d||!d.big)return;const B=d.big,h=d.bs.h,[s0,s1]=bSel();$('sPos').textContent=`Ln ${(h.l+1).toLocaleString()}, Col ${h.c+1}`;
   let sel='';if(cmpP(s0,s1)){const nl=s1.l-s0.l;sel=nl?`${(nl+1).toLocaleString()} lines selected`:`${s1.c-s0.c} selected`}$('sSel').textContent=sel;
-  B.idx();$('sCount').textContent=`${B.lines().toLocaleString()} lines · ${fmtMB(B.size)}`;$('sMode').textContent='Large file';
+  B.idx();$('sCount').textContent=(sel?sel+' · ':'')+`${B.size.toLocaleString()} characters (${fmtMB(B.size)})`;$('sLines').textContent=`${(h.l+1).toLocaleString()}/${B.lines().toLocaleString()} lines`;$('sMode').textContent='Large file';
   const rc=$('rulerIn').querySelector('.caret');if(rc)rc.style.left=12+h.c*cw+'px'}
 function bEnsure(center){const d=cur,g=d.g||bGeom(),h=d.bs.h,y=h.l*g.lh;
   if(center&&(y<d.btop||y+g.lh>d.btop+g.vh))d.btop=y-g.vh/3;else if(y<d.btop)d.btop=y;else if(y+g.lh>d.btop+g.vh)d.btop=y+g.lh-g.vh;
@@ -1413,17 +1420,17 @@ let progCancel=false;
 function progDlg(title){progCancel=false;dialog(title,'<div class="pbar"><i id="pbI"></i></div><p id="pbT" class="note" style="margin:8px 0 0">Starting…</p>',[['Cancel',()=>{progCancel=true}]]);
   return{set(f,txt){const i=$('pbI');if(i)i.style.width=(Math.min(1,f)*100).toFixed(1)+'%';const t=$('pbT');if(t&&txt)t.textContent=txt},close(){$('modal').classList.remove('show')}}}
 async function openBig(f,h){const pd=progDlg('Opening '+f.name);try{
-  const head=new Uint8Array(await f.slice(0,4).arrayBuffer());let enc='utf-8';if(head[0]===0xFF&&head[1]===0xFE)enc='utf-16le';else if(head[0]===0xFE&&head[1]===0xFF)enc='utf-16be';
+  const head=new Uint8Array(await f.slice(0,4).arrayBuffer());let enc='utf-8';const bomB=head[0]===0xEF&&head[1]===0xBB&&head[2]===0xBF;if(head[0]===0xFF&&head[1]===0xFE)enc='utf-16le';else if(head[0]===0xFE&&head[1]===0xFF)enc='utf-16be';
   let loaded=0;const rd=f.stream().pipeThrough(new TransformStream({transform(c,ctl){loaded+=c.byteLength;ctl.enqueue(c)}})).pipeThrough(new TextDecoderStream(enc)).getReader();
   const bl=new Builder();let carry='',crlf=0,lf=0,tl=0;const t0=performance.now();
   for(;;){const{done,value}=await rd.read();if(done)break;if(progCancel){rd.cancel();toast('Opening cancelled');return}let s=carry+value;carry='';if(s.endsWith('\r')){carry='\r';s=s.slice(0,-1)}
     if(lf<20000){let i=-1;while((i=s.indexOf('\n',i+1))!==-1){lf++;if(i>0&&s.charCodeAt(i-1)===13)crlf++}}if(s.indexOf('\r')!==-1)s=s.replace(/\r\n?/g,'\n');bl.push(s);
     const now=performance.now();if(now-tl>120){tl=now;const sec=(now-t0)/1000,sp=loaded/Math.max(sec,.01);pd.set(loaded/f.size,`${fmtMB(loaded)} of ${fmtMB(f.size)} · about ${Math.max(0,Math.ceil((f.size-loaded)/sp))} s left`);await new Promise(r=>setTimeout(r))}}
-  if(carry)bl.push('\n');const d=mkDoc(f.name,'');d.handle=h||null;bInit(d,new Buf(bl.finish(true)));d.eol=crlf>lf/2?'CRLF':'LF';d.lang=langFor(f.name);if(d.lang==='csv')d.lang='text';
+  if(carry)bl.push('\n');const d=mkDoc(f.name,'');d.handle=h||null;bInit(d,new Buf(bl.finish(true)));d.eol=crlf>lf/2?'CRLF':'LF';d.bom=bomB;d.lang=langFor(f.name);if(d.lang==='csv')d.lang='text';
   if(cur&&!cur.big&&!cur.dirty&&!cur.text&&/^Untitled/.test(cur.name)){const i=docs.indexOf(cur);docs[i]=d;cur=null}else docs.push(d);pd.close();activate(d);
   toast(`Opened ${f.name} in large-file mode (${fmtMB(f.size)}, ${d.big.lines().toLocaleString()} lines)`);bigSaveSoon(d,800)}
   catch(e){pd.close();toast('Could not open: '+e.message)}}
-function bBlob(){const crlf=cur.eol==='CRLF';return new Blob(cur.big.ch.map(c=>crlf?c.t.replace(/\n/g,'\r\n'):c.t),{type:'text/plain'})}
+function bBlob(){const crlf=cur.eol==='CRLF',parts=cur.big.ch.map(c=>crlf?c.t.replace(/\n/g,'\r\n'):c.t);if(cur.bom)parts.unshift('\ufeff');return new Blob(parts,{type:'text/plain'})}
 function idbPutMany(es){return new Promise(r=>{if(!idb)return r(false);try{const tx=idb.transaction('kv','readwrite'),st=tx.objectStore('kv');for(const[k,v]of es)st.put(v,k);tx.oncomplete=()=>r(true);tx.onerror=tx.onabort=()=>r(false)}catch(e){r(false)}})}
 function idbDelMany(ks){return new Promise(r=>{if(!idb||!ks.length)return r(false);try{const tx=idb.transaction('kv','readwrite'),st=tx.objectStore('kv');for(const k of ks)st.delete(k);tx.oncomplete=()=>r(true);tx.onerror=tx.onabort=()=>r(false)}catch(e){r(false)}})}
 function idbGetMany(ks){return new Promise(r=>{if(!idb)return r(null);try{const st=idb.transaction('kv').objectStore('kv'),out=new Array(ks.length);let left=ks.length;if(!left)return r(out);ks.forEach((k,i)=>{const q=st.get(k);q.onsuccess=()=>{out[i]=q.result;if(--left===0)r(out)};q.onerror=()=>{if(--left===0)r(out)}})}catch(e){r(null)}})}
@@ -1591,8 +1598,13 @@ addEventListener('pagehide',saveLocal);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden'){saveLocal();saveNow()}});
 
 
+/* ---------- status bar: timing, messages, encoding ---------- */
+const wrapT=f=>function(...a){const t0=performance.now(),seq=toastSeq;const r=f.apply(this,a);const fin=()=>{const sec=((performance.now()-t0)/1000).toFixed(3);setMsg((toastSeq!==seq?lastToast+'  ':'')+`(${sec} seconds)`)};if(r&&typeof r.then==='function')r.then(fin,fin);else fin();return r};
+findNext=wrapT(findNext);replaceAll=wrapT(replaceAll);replaceOne=wrapT(replaceOne);bookmarkAll=wrapT(bookmarkAll);extract=wrapT(extract);sortLines=wrapT(sortLines);mapText=wrapT(mapText);mapLines=wrapT(mapLines);saveDoc=wrapT(saveDoc);
+$('sBell').onclick=()=>{$('sBell').classList.remove('new');pop($('sBell'),MSGS.length?['Recent messages',...MSGS.slice(0,25).map(([t,m])=>({label:t.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})+'  '+m,fn:()=>{}})),'-',{label:'Clear messages',fn:()=>{MSGS.length=0;setMsg('Ready')}}]:['No messages yet'])};
+$('sEnc').onclick=()=>{if(!cur)return;cur.bom=!cur.bom;cur.dirty=true;tabs();persist();toast(cur.bom?'Will save as UTF-8 with signature (BOM)':'Will save as UTF-8 without signature')};
 /* ---------- start ---------- */
-$('appName').textContent=APP.name;$('status').insertAdjacentHTML('beforeend',`<span class="hm" title="Version">v${esc(APP.version)}</span>`);
+$('appName').textContent=APP.name;
 (async()=>{
 await idbOpen();let a=null,b=null;try{a=JSON.parse(localStorage.getItem(SKEY))}catch(e){}try{b=JSON.parse(await idbGet(SKEY))}catch(e){}
 const j=a&&b?((b.t||0)>(a.t||0)?b:a):(a||b);
