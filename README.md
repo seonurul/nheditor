@@ -7,7 +7,7 @@ colour-code your code, and find and replace across all of them with regular expr
 files as tables, compare two files side by side, and record macros to repeat boring edits. It works offline,
 and nothing you type is uploaded anywhere.
 
-**Try it:** https://YOUR-USERNAME.github.io/nheditor/
+**Try it:** https://github.com/seonurul/nheditor
 
 ## Why NHEditor?
 
