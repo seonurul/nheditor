@@ -7,13 +7,14 @@ colour-code your code, and find and replace across all of them with regular expr
 files as tables, compare two files side by side, and record macros to repeat boring edits. It works offline,
 and nothing you type is uploaded anywhere.
 
-**Try it:** https://github.com/seonurul/nheditor
+**Try it:** https://YOUR-USERNAME.github.io/nheditor/
 
 ## Why NHEditor?
 
 - **Nothing to install.** One file. Double-click it, or open the online version.
 - **Private.** Your text never leaves your computer.
 - **Real files.** In Chrome and Edge, Open and Save work directly on the files on your PC.
+- **Huge files.** Open and edit files of hundreds of megabytes (tested with 500 MB) without freezing.
 - **Made for power users.** Most actions have a keyboard shortcut, and you can hide any toolbar button you don't use.
 
 ## Features
@@ -22,6 +23,11 @@ and nothing you type is uploaded anywhere.
 - Tabs, drag-and-drop opening, auto-indent, auto-closing brackets, overwrite mode
 - Duplicate, delete and move lines; toggle comments; indent and outdent selections
 - Syntax colouring for JavaScript/TypeScript, Python, HTML/XML, CSS, JSON, Markdown, C/C++/Java/C#, SQL, shell/INI/YAML and CSV
+
+**Large files**
+- Files over 10 MB (adjustable) open in a special large-file mode that only draws what is on screen
+- Edit, find, replace all, bookmark and extract in files with millions of lines
+- Auto-save keeps only the changed parts, so even huge files survive a reload
 
 **Search**
 - Find / Replace window with regular expressions, escape sequences, number ranges and fuzzy matching
